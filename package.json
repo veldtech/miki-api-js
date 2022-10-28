@@ -1,0 +1,23 @@
+{
+  "name": "@mikibot/api",
+  "version": "0.1.0",
+  "description": "Miki API client for Node JS",
+  "main": "index.js",
+  "repository": "https://github.com/veldtech/miki-api-js.git",
+  "author": "Mike Veldsink <mike@veld.gg>",
+  "company": "Veld Technologies",
+  "license": "MIT",
+  "private": false,
+  "dependencies": {
+    "axios": "^1.1.3"
+  },
+  "devDependencies": {
+    "npm-run-all": "^4.1.5",
+    "typescript": "^4.8.4"
+  },
+  "scripts": {
+    "build": "tsc",
+    "postinstall": "npm-run-all postinstall:*",
+    "postinstall:genversion": "node scripts/genversion.js"
+  }
+}
