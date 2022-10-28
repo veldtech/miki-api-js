@@ -61,17 +61,12 @@ export class MikiApiClient {
       .catch(this.handleError);
   }
 
-  public verifyGrant(
-    clientId: Snowflake,
-    guildId: Snowflake,
-    code: string
-  ): Promise<OAuth2Grant> {
+  public verifyGrant(clientId: Snowflake, code: string): Promise<OAuth2Grant> {
     return this.axios
       .post(
         `/oauth2/verify?${new URLSearchParams(
           {
             client_id: clientId,
-            guild_id: guildId,
             code,
           }.toString()
         )}`

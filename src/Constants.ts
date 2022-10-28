@@ -1,1 +1,1 @@
-export const apiUrl = "https://api.miki.ai/v1";
+export const apiUrl = "https://api.miki.bot/v1";
