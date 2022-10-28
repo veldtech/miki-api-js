@@ -38,47 +38,55 @@ export class MikiApiClient {
       baseURL: apiUrl,
       headers: {
         Authorization: `Bearer ${token}`,
-        "Content-Type": "application/json",
         "User-Agent": `miki-api-js@${version}`,
       },
     });
   }
 
-  public addExperience(
+  public async addExperience(
     guildId: Snowflake,
-    userId: Snowflake,
+    memberId: Snowflake,
     amount: number,
     bucket?: string
   ): Promise<Maybe<AddExperienceResponse>> {
-    return this.axios
-      .post("/experience/add", {
-        guildId,
-        userId,
-        amount,
-        bucket,
+    const payload = JSON.stringify({
+      amount,
+      bucket,
+    });
+
+    const response = await this.axios
+      .post(`guilds/${guildId}/members/${memberId}/experience`, payload, {
+        headers: {
+          "Content-Type": "application/json",
+        },
       })
-      .then((r) => r.data || null)
       .catch(this.handleError);
+    console.log({ response });
+    if (!response.data) {
+      return null;
+    }
+
+    return JSON.parse(response.data) as AddExperienceResponse;
   }
 
-  public verifyGrant(clientId: Snowflake, code: string): Promise<OAuth2Grant> {
-    return this.axios
+  public async verifyGrant(
+    clientId: Snowflake,
+    code: string
+  ): Promise<OAuth2Grant> {
+    const response = await this.axios
       .post(
-        `/oauth2/verify?${new URLSearchParams(
-          {
-            client_id: clientId,
-            code,
-          }.toString()
-        )}`
+        `oauth2/verify?${new URLSearchParams({
+          client_id: clientId,
+          code,
+        }).toString()}`
       )
-      .then((r) => r.data)
-      .then((r) => {
-        if (r.authorized) {
-          return r;
-        }
-        throw new Error("application grant was not authorized");
-      })
+      .then((r) => JSON.parse(r.data))
       .catch(this.handleError);
+    if (!response.authorized) {
+      throw new Error("Grant not authorized.");
+    }
+
+    return response as OAuth2Grant;
   }
 
   private handleError<T>(e: Error) {
