@@ -14,4 +14,4 @@ $ yarn add @mikibot/api
 
 For the full documentation about the API, refer to the api documentation.
 
-https://developers.miki.bot/docs/api
+https://developers.miki.bot/docs/intro
