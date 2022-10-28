@@ -1,8 +1,9 @@
 {
   "name": "@mikibot/api",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Miki API client for Node JS",
-  "main": "index.js",
+  "main": "build/index.js",
+  "types": "build/index.d.ts",
   "repository": "https://github.com/veldtech/miki-api-js.git",
   "author": "Mike Veldsink <mike@veld.gg>",
   "company": "Veld Technologies",
