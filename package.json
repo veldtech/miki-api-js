@@ -1,6 +1,6 @@
 {
   "name": "@mikibot/api",
-  "version": "0.1.6",
+  "version": "0.1.7",
   "description": "Miki API client for Node JS",
   "main": "build/index.js",
   "types": "build/index.d.ts",
@@ -19,6 +19,7 @@
   "scripts": {
     "build": "tsc",
     "prepublish": "npm-run-all prepublish:*",
+    "prepublish:build": "npm run build",
     "prepublish:genversion": "node scripts/genversion.js"
   }
 }
