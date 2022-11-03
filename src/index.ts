@@ -1,3 +1,2 @@
-import { MikiApiClient } from "./Client";
-
-export { MikiApiClient };
+export { MikiApiClient } from "./Client";
+export { ApiError } from "./ApiError";

@@ -2,5 +2,6 @@ scripts/
 src/
 node_modules/
 .gitignore
+test.js
 LICENSE
 README.md

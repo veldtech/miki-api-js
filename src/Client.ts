@@ -1,11 +1,12 @@
-import { Axios, AxiosError, type AxiosResponse } from "axios";
+import { Axios, AxiosError } from "axios";
 import { version } from "./version.json";
 import { apiUrl } from "./Constants";
+import { ApiError, ImpossibleError } from "./ApiError";
 
 /**
- * Type-safe stringified snowflake integers.
+ * Stringified snowflake.
  */
-type Snowflake = `${bigint}`;
+type Snowflake = string;
 
 /**
  * A type alias to specify a type response OR null. Useful for optional response types.
@@ -40,6 +41,9 @@ export class MikiApiClient {
         Authorization: `Bearer ${token}`,
         "User-Agent": `miki-api-js@${version}`,
       },
+      validateStatus: (status) => status >= 200 && status < 300,
+      transformRequest: (data) => JSON.stringify(data),
+      transformResponse: (data) => JSON.parse(data),
     });
   }
 
@@ -49,24 +53,21 @@ export class MikiApiClient {
     amount: number,
     bucket?: string
   ): Promise<Maybe<AddExperienceResponse>> {
-    const payload = JSON.stringify({
-      amount,
-      bucket,
-    });
-
     const response = await this.axios
-      .post(`guilds/${guildId}/members/${memberId}/experience`, payload, {
-        headers: {
-          "Content-Type": "application/json",
+      .post(
+        `guilds/${guildId}/members/${memberId}/experience`,
+        {
+          amount,
+          bucket,
         },
-      })
+        {
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      )
       .catch(this.handleError);
-    console.log({ response });
-    if (!response.data) {
-      return null;
-    }
-
-    return JSON.parse(response.data) as AddExperienceResponse;
+    return response?.data ?? null;
   }
 
   public async verifyGrant(
@@ -74,30 +75,29 @@ export class MikiApiClient {
     code: string
   ): Promise<OAuth2Grant> {
     const response = await this.axios
-      .post(
+      .post<OAuth2Grant>(
         `oauth2/verify?${new URLSearchParams({
           client_id: clientId,
           code,
         }).toString()}`
       )
-      .then((r) => JSON.parse(r.data))
       .catch(this.handleError);
-    if (!response.authorized) {
+    if (!response?.data.authorized) {
       throw new Error("Grant not authorized.");
     }
 
-    return response as OAuth2Grant;
+    return response!.data;
   }
 
   private handleError<T>(e: Error) {
-    if (!(e instanceof AxiosError)) {
-      throw e;
+    if (!(e instanceof AxiosError<T>)) {
+      throw new ImpossibleError(e);
     }
 
     if (e.status === 404) {
-      return e.response as AxiosResponse<T, any>;
+      return null;
     }
 
-    throw e;
+    throw new ApiError(e);
   }
 }
