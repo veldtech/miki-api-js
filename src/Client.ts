@@ -2,6 +2,7 @@ import { Axios, AxiosError } from "axios";
 import { version } from "./version.json";
 import { apiUrl } from "./Constants";
 import { ApiError, ImpossibleError } from "./ApiError";
+import { ValidationError } from "./ValidationError";
 
 /**
  * Stringified snowflake.
@@ -58,7 +59,7 @@ export class MikiApiClient {
         `guilds/${guildId}/members/${memberId}/experience`,
         {
           amount,
-          bucket,
+          bucket: bucket ?? "default",
         },
         {
           headers: {
@@ -94,8 +95,12 @@ export class MikiApiClient {
       throw new ImpossibleError(e);
     }
 
-    if (e.status === 404) {
+    if (e.response?.status === 404) {
       return null;
+    }
+
+    if (e.response?.status === 400) {
+      throw new ValidationError(e);
     }
 
     throw new ApiError(e);
